@@ -1,4 +1,4 @@
-# ezpy
+# py_utils
 utilities to ease python development
 
 ## PoolExecutor
