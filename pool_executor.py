@@ -32,9 +32,11 @@ class PoolExecutor:  # pragma: no cover
                  timeout=None,
                  executor=futures.ThreadPoolExecutor):
         self.futures = []
+        self._results = []
         self.pool = executor(max_workers=max_workers)
         self.return_when = return_when
         self.timeout = timeout
+        self.finished = False
 
     def submit(self, handler: Callable, *args, **kwargs) -> None:
         """ submit function call to pool to be executed by worker thread """
@@ -42,7 +44,13 @@ class PoolExecutor:  # pragma: no cover
         self.futures.append(future)
         return future
 
+    def results(self):
+        self.finish()
+        return self._results
+   
     def finish(self):
+        if self.finished:
+            return
         """
         Here PoolExecutor will wait for condition set in initialization
         It will then go through each tracked futures and collect the result
@@ -54,9 +62,10 @@ class PoolExecutor:  # pragma: no cover
                                    timeout=self.timeout,
                                    return_when=self.return_when)
             for future in done:
-                future.result()
+                self._results.append(future.result())
         finally:
             self.pool.shutdown()
+            self.finished = True
 
     def __enter__(self):
         return self
