@@ -25,4 +25,8 @@ Alternatively:
         pool.submit(thread, i)
     pool.finish()
 ````
+pool function could return results which is accesible through 
+````python
+pool.results()
+````
 On arguments refer to concurrent.futures module in python library
