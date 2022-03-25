@@ -62,7 +62,9 @@ class PoolExecutor:  # pragma: no cover
                                    timeout=self.timeout,
                                    return_when=self.return_when)
             for future in done:
-                self._results.append(future.result())
+                result = future.result()
+                if result:
+                    self._results.append(result)
         finally:
             self.pool.shutdown()
             self.finished = True
