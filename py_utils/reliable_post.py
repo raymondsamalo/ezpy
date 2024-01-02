@@ -11,20 +11,33 @@ class MessageState(str, Enum):
 
 
 class Message:
-    def __init__(self, url: str, body: Any, state: MessageState = MessageState.PENDING):
+    def __init__(self, id:str, url: str, body: Any, state: MessageState = MessageState.PENDING):
         self.url = url
         self.body = body
         self.state = state
+        self.id = id
 
     def dumps(self):
-        return json.dumps({"url": self.url, "body": self.body, "state": self.state})
+        return json.dumps({"id":self.id,"url": self.url, "body": self.body, "state": self.state})
 
     @classmethod
     def loads(cls, text: str):
         the_json = json.loads(text)
-        return Message(url=the_json.get("url", None),
-                       body=the_json.get("body", None),
-                       state=the_json.get("state", MessageState.PENDING))
+        return Message(id=the_json["id"],
+                       url=the_json["url"],
+                       body=the_json["body"],
+                       state=the_json["state"])
+
+class AbstractMessageQueueStorage(ABC):
+    pass
+
+class MessageQueueStorage(AbstractMessageQueueStorage):
+    def __init__(self):
+        self.queue = []
+
+    def add(self, message:Message):
+        self.queue.append(message)
+
 
 
 class MessageQueue(ABC):
@@ -40,3 +53,4 @@ class MessageQueue(ABC):
 
     def on_exceed_max_retry(self, message: Message):
         pass
+
